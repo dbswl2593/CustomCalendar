@@ -47,18 +47,22 @@ public class CustomCalendar extends JFrame implements ActionListener{
 		setSideMedu(wrapper);
 		updateAlpha(wrapper);
 		setClockPanel(wrapper);
-		calendar = new CalendarPanel();
-
-		wrapper.add(calendar);
+		setCalendarPanel(wrapper);
 		add(wrapper);
 		setRightClickMenu(wrapper);
 		setOnClock();
 	}
 	
 	private void setOnClock() {
-		clock.start();
+		//clock.start();
 		clock.setVisible(true);
 		calendar.setVisible(false);
+	}
+	
+	private void setOnCalendar() {
+		//clock.inturrupt();
+		clock.setVisible(false);
+		calendar.setVisible(true);
 	}
 	
 	private void setClockPanel(JPanel dest) {
@@ -66,6 +70,13 @@ public class CustomCalendar extends JFrame implements ActionListener{
 		clock.setBackground(new Color(255, 255, 255, 0));
 		clock.setBounds((int) (frameSize.height*sideTabWidthMultiplier), 0, (int) (getWidth() - frameSize.height*sideTabWidthMultiplier), getHeight());
 		dest.add(clock);
+	}
+	
+	private void setCalendarPanel(JPanel dest) {
+		calendar = new CalendarPanel();
+		calendar.setBackground(new Color(255, 255, 255, 0));
+		calendar.setBounds((int) (frameSize.height*sideTabWidthMultiplier), 0, (int) (getWidth() - frameSize.height*sideTabWidthMultiplier), getHeight());
+		dest.add(calendar);
 	}
 	
 	private void setRightClickMenu(JPanel dest) {
@@ -107,6 +118,13 @@ public class CustomCalendar extends JFrame implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setOnClock();
+			}
+		});
+		sideButton[1].addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setOnCalendar();
 			}
 		});
 		dest.add(sideTab);
