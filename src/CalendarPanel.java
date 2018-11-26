@@ -1,12 +1,8 @@
-import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,27 +10,15 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
+import java.io.OutputStreamWriter;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -42,12 +26,8 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
 
-
-
-
-public class CalendarPanel extends JPanel implements ActionListener, MouseWheelListener {
+public class CalendarPanel extends AlphaPanel implements ActionListener, MouseWheelListener {
 
 	/**
 	 * 
@@ -80,14 +60,25 @@ public class CalendarPanel extends JPanel implements ActionListener, MouseWheelL
 		});
 		
 		update(cal.get(Calendar.DAY_OF_WEEK));
-		
-		
-		
-		
-		
 	}
 	
-	
+	void writeJson(JsonElement json, String path) {
+		System.out.println("Writing Data...");
+		Gson gson = new Gson();
+		FileOutputStream opstream;
+		try {
+			File out = new File(path);
+			out.createNewFile();
+			opstream = new FileOutputStream(path);
+			OutputStreamWriter writer = new OutputStreamWriter(opstream);
+			writer.write(gson.toJson(json));
+			writer.close();
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
 	
 	JsonObject readDB(String path) {
 		JsonParser parser = new JsonParser();
@@ -96,6 +87,19 @@ public class CalendarPanel extends JPanel implements ActionListener, MouseWheelL
 			dat = parser.parse(new FileReader(path)).getAsJsonObject();
 		} catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
 			dat = new JsonObject();
+			JsonObject yearobj = new JsonObject();
+			for(int i=0; i<12; i++) {
+				JsonObject month = new JsonObject();
+				Calendar temp = Calendar.getInstance();
+				temp.set(year, i, 1);
+				for(int j=0; j<temp.getActualMaximum(Calendar.DATE); j++){
+					JsonArray day = new JsonArray(10);
+					month.add(Integer.toString(j + 1), day);
+				}
+				yearobj.add(Integer.toString(i + 1), month);
+			}
+			dat.add(Integer.toString(year), yearobj);
+			writeJson(dat, path);
 		}
 		return dat;
 	}
@@ -103,7 +107,7 @@ public class CalendarPanel extends JPanel implements ActionListener, MouseWheelL
 	void update(int start) {
 		removeAll();
 		JPanel header = new JPanel(new BorderLayout());
-		JLabel head = new JLabel(cal.get(Calendar.YEAR) + "³â " + cal.getActualMaximum(Calendar.MONTH) + "¿ù");
+		JLabel head = new JLabel(cal.get(Calendar.YEAR) + "³â " + (cal.get(Calendar.MONTH) + 1) + "¿ù");
 		head.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 40));
 		head.setVisible(true);
 		header.add(head, BorderLayout.WEST);
@@ -150,16 +154,6 @@ public class CalendarPanel extends JPanel implements ActionListener, MouseWheelL
 		
 	}
 	
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		Graphics2D g2d = (Graphics2D)g.create();
-		g2d.setComposite(AlphaComposite.Clear);
-		g2d.fillRect(0, 0, getWidth(), getHeight());
-		g2d.setPaint(getParent().getBackground());
-		g2d.setComposite(AlphaComposite.SrcOver);
-		g2d.fillRect(0, 0, getWidth(), getHeight());
-	}
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
 		// TODO Auto-generated method stub

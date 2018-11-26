@@ -1,16 +1,11 @@
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-public class ClockPanel extends JPanel {
+public class ClockPanel extends AlphaPanel {
 
 	/**
 	 * 
@@ -38,24 +33,11 @@ public class ClockPanel extends JPanel {
 						update();
 						Thread.sleep(100);
 					}
-					
 				}
 				catch(InterruptedException e) {}
 			}
 		};
 		t.start();
-	}
-
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		Graphics2D g2d = (Graphics2D)g.create();
-		g2d.setComposite(AlphaComposite.Clear);
-		g2d.fillRect(0, 0, getWidth(), getHeight());
-		g2d.setPaint(getParent().getBackground());
-		g2d.setComposite(AlphaComposite.SrcOver);
-		g2d.fillRect(0, 0, getWidth(), getHeight());
-		
 	}
 	private void update() {
 		String txt = sdf.format(Calendar.getInstance().getTime());

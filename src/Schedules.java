@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 public class Schedules {
+	@SuppressWarnings("unchecked")
 	ArrayList<String> schedule[] = new ArrayList[10];
 	int length;
 	Schedules(JsonArray input){
@@ -17,6 +17,8 @@ public class Schedules {
 			schedule[i].add(input.get(i).getAsJsonObject().get("timestart").getAsString());
 			schedule[i].add(input.get(i).getAsJsonObject().get("timeend").getAsString());
 			} catch(NullPointerException e) {
+				length--;
+			} catch(IndexOutOfBoundsException e) {
 				length--;
 			}
 		}
