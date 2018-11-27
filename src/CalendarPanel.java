@@ -1,9 +1,9 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
@@ -16,9 +16,12 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -33,14 +36,20 @@ public class CalendarPanel extends AlphaPanel implements ActionListener, MouseWh
 	 * 
 	 */
 	private static final long serialVersionUID = 3032615500418430799L;
-	int year, month;
-	Calendar cal;
-	JsonObject data;
-	Schedules[] mschedules = new Schedules[32];
-	JButton arrup = new JButton("¡â");
-	JButton arrdown = new JButton("¡ä");
-	String[] dayofweek = {"", "ÀÏ", "¿ù", "È­", "¼ö", "¸ñ", "±Ý", "Åä"};
-	ArrayList<JLabel> weekhead = new ArrayList<JLabel>();
+	private int year, month;
+	private Calendar cal;
+	private JsonObject data;
+	private Schedules[] mschedules = new Schedules[32];
+	private JButton arrup = new JButton("¡â");
+	private JButton arrdown = new JButton("¡ä");
+	private String[] dayofweek = {"", "ÀÏ", "¿ù", "È­", "¼ö", "¸ñ", "±Ý", "Åä"};
+	private ArrayList<JLabel> weekhead = new ArrayList<JLabel>();
+	
+	private AlphaPanel header;
+	private JLabel headlabel;
+	
+	private AlphaPanel calendar;
+	private GridBagConstraints cc;
 	CalendarPanel(){
 		setLayout(null);
 		
@@ -51,15 +60,54 @@ public class CalendarPanel extends AlphaPanel implements ActionListener, MouseWh
 		data = readDB("./caldata.json");
 		
 		arrup.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				
 			}
 		});
+		arrdown.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		header = new AlphaPanel();
+		header.setLayout(new BorderLayout());
+		headlabel = new JLabel();
+		headlabel.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 40));
+		headlabel.setText(cal.get(Calendar.YEAR) + "³â " + (cal.get(Calendar.MONTH) + 1) + "¿ù");
+		header.add(headlabel, BorderLayout.WEST);
+		AlphaPanel updown = new AlphaPanel();
+		updown.add(arrup);
+		updown.add(arrdown);
+		header.add(updown, BorderLayout.EAST);
+		header.setBackground(new Color(255,255,255,0));
+		FontMetrics fm = headlabel.getFontMetrics(headlabel.getFont());
+		header.setBounds(30, 10, ((int)( fm.stringWidth(headlabel.getText())*2.5)), fm.getHeight());
+		arrup.setSize(fm.getHeight(), fm.getHeight());
+		arrup.setBackground(new Color(255,255,255,0));
+		arrdown.setBackground(new Color(255,255,255,0));
+		arrdown.setSize(fm.getHeight(), fm.getHeight());
+		updown.setBackground(new Color(255,255,255,0));
+		add(header);
 		
-		update(cal.get(Calendar.DAY_OF_WEEK));
+		calendar = new AlphaPanel(new GridBagLayout());
+		cc = new GridBagConstraints();
+		cc.weightx = 1.0;
+		cc.weighty = 1.0;
+		cc.gridy = 0;
+		cc.fill = GridBagConstraints.BOTH;
+		calendar.setBackground(new Color(255,255,255,0));
+		for(int i=1; i<8; i++) {
+			weekhead.add(new JLabel(dayofweek[i], SwingConstants.CENTER));
+			weekhead.get(i-1).setBackground(new Color(255,255,255,0));
+			weekhead.get(i-1).setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 35));
+			weekhead.get(i-1).setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(100,100,100)));
+			cc.gridx = i-1;
+			calendar.add(weekhead.get(i-1), cc);
+		}
 	}
 	
 	void writeJson(JsonElement json, String path) {
@@ -105,53 +153,56 @@ public class CalendarPanel extends AlphaPanel implements ActionListener, MouseWh
 	}
 	
 	void update(int start) {
-		removeAll();
-		JPanel header = new JPanel(new BorderLayout());
-		JLabel head = new JLabel(cal.get(Calendar.YEAR) + "³â " + (cal.get(Calendar.MONTH) + 1) + "¿ù");
-		head.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 40));
-		head.setVisible(true);
-		header.add(head, BorderLayout.WEST);
-		JPanel updown = new JPanel();
-		updown.add(arrup);
-		updown.add(arrdown);
-		header.add(updown, BorderLayout.EAST);
-		JPanel calendar = new JPanel(new GridLayout(7, 7, 0, 0));
-		for(int i=1; i<8; i++) {
-			weekhead.add(new JLabel(dayofweek[i]));
-			weekhead.get(i-1).setBackground(new Color(255,255,255,0));
-			weekhead.get(i-1).setAlignmentX(Component.CENTER_ALIGNMENT);
-			weekhead.get(i-1).setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 40));
-			calendar.add(weekhead.get(i-1));
+		headlabel.setText(cal.get(Calendar.YEAR) + "³â " + (cal.get(Calendar.MONTH) + 1) + "¿ù");
+		calendar.setBounds(header.getBounds().x - 15, header.getBounds().height + header.getBounds().y, 
+				getWidth() - 20, getHeight() - header.getBounds().y - header.getBounds().height);
+		
+		cc.gridy = 1;
+		for(int i = 1; i < start; i++) {
+			cc.gridx = i-1;
+			JLabel jl = new JLabel("", SwingConstants.CENTER);
+			jl.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 45));
+			jl.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(100,100,100)));
+			calendar.add(jl, cc);
 		}
-		for(int i=1; i<start; i++) {
-			calendar.add(new JLabel("x"));
-		}
+		int fir = cc.gridx;
 		try {
 			JsonElement monthobj = data.get(Integer.toString(year)).getAsJsonObject().get(Integer.toString(month));
-			for(int i=1; i<32; i++) {
+			for(int i=1; i < cal.getActualMaximum(Calendar.DATE) + 1; i++) {
 				if(!monthobj.isJsonNull()) {
 					JsonArray dayarr = monthobj.getAsJsonObject().get(Integer.toString(i)).getAsJsonArray();
 					if(!dayarr.isJsonNull()) {
 						mschedules[i] = new Schedules(dayarr);
-						JLabel jl = new JLabel(Integer.toString(i) + "\n" + mschedules[i].length);
+						JLabel jl = new JLabel("<html><strong>"+Integer.toString(i) + "</strong><br/><br/>[" + mschedules[i].length + "]</html>", SwingConstants.CENTER);
 						jl.setBackground(new Color(255,255,255,0));
-						jl.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 20));
+						jl.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 30));
+						cc.gridx = (fir + i) % 7;
+						if(cc.gridx == 6)jl.setForeground(new Color(60,60,255));
+						else if(cc.gridx == 0)jl.setForeground(new Color(255,60,60));
+						jl.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(100,100,100)));
+						calendar.add(jl, cc);
+						if(cc.gridx == 6)cc.gridy++;
+						//TODO: add label click listener;
 					}
 				}
 			}
+			for(; cc.gridx < 7; cc.gridx++) {
+				JLabel jl = new JLabel("", SwingConstants.CENTER);
+				jl.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 45));
+				jl.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(100,100,100)));
+				calendar.add(jl, cc);
+			}
 		}
 		catch (NullPointerException e) {}
-		FontMetrics fm = head.getFontMetrics(head.getFont());
-		header.setBounds(10, 10, ((int)( fm.stringWidth(head.getText())*2.5)), fm.getHeight());
-		header.setBackground(new Color(255,255,255,0));
-		arrup.setSize(fm.getHeight(), fm.getHeight());
-		arrup.setBackground(new Color(255,255,255,0));
-		arrdown.setBackground(new Color(255,255,255,0));
-		arrdown.setSize(fm.getHeight(), fm.getHeight());
-		updown.setBackground(new Color(255,255,255,0));
-		add(header);
 		add(calendar);
 		
+	}
+	
+	@Override
+	public void setBounds(int x, int y, int width, int height) {
+		// TODO Auto-generated method stub
+		super.setBounds(x, y, width, height);
+		update(cal.get(Calendar.DAY_OF_WEEK));
 	}
 	
 	@Override

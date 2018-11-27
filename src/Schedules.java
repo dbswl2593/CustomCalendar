@@ -18,8 +18,10 @@ public class Schedules {
 			schedule[i].add(input.get(i).getAsJsonObject().get("timeend").getAsString());
 			} catch(NullPointerException e) {
 				length--;
+				break;
 			} catch(IndexOutOfBoundsException e) {
 				length--;
+				break;
 			}
 		}
 		length++;

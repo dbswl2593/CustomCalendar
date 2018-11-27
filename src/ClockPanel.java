@@ -11,10 +11,10 @@ public class ClockPanel extends AlphaPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 2143849358452364853L;
-	SimpleDateFormat sdf;
-	JLabel clk;
-	Thread t;
-	int alpha = 170;
+	private SimpleDateFormat sdf;
+	private JLabel clk;
+	private Thread t;
+	private boolean interrupt;
 	
 	ClockPanel(){
 		sdf = new SimpleDateFormat("HH:mm:ss");
@@ -26,18 +26,7 @@ public class ClockPanel extends AlphaPanel {
 		clk.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 70));
 		add(clk);
 		clk.setVisible(true);
-		t = new Thread() {
-			public void run() {
-				try {
-					while(!isInterrupted()) {
-						update();
-						Thread.sleep(100);
-					}
-				}
-				catch(InterruptedException e) {}
-			}
-		};
-		t.start();
+		start();
 	}
 	private void update() {
 		String txt = sdf.format(Calendar.getInstance().getTime());
@@ -48,9 +37,21 @@ public class ClockPanel extends AlphaPanel {
 		repaint();
 	}
 	protected void inturrupt() {
-		t.interrupt();
+		interrupt = false;
 	}
 	protected void start(){
-		if(!t.isAlive())t.start();
+		t = new Thread() {
+			public void run() {
+				interrupt = true;
+				try {
+					while(interrupt) {
+						update();
+						Thread.sleep(500);
+					}
+				}
+				catch(InterruptedException e) {}
+			}
+		};
+		t.start();
 	}
 }

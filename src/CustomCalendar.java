@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Rectangle;
@@ -54,13 +55,13 @@ public class CustomCalendar extends JFrame implements ActionListener{
 	}
 	
 	private void setOnClock() {
-		//clock.start();
+		clock.start();
 		clock.setVisible(true);
 		calendar.setVisible(false);
 	}
 	
 	private void setOnCalendar() {
-		//clock.inturrupt();
+		clock.inturrupt();
 		clock.setVisible(false);
 		calendar.setVisible(true);
 	}
@@ -81,7 +82,8 @@ public class CustomCalendar extends JFrame implements ActionListener{
 	
 	private void setRightClickMenu(JPanel dest) {
 		JPopupMenu rightClickMenu = new JPopupMenu();
-		exit = new JMenuItem("Á¾·á");
+		exit = new JMenuItem(" Á¾·á");
+		exit.setFont(new Font("¸¼Àº °íµñ", Font.BOLD, 18));
 		exit.addActionListener(this);
 		rightClickMenu.add(exit);
 		dest.add(rightClickMenu);
