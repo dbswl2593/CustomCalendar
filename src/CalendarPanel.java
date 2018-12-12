@@ -64,6 +64,8 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 	
 	private AlphaPanel schedule;
 	
+	private TimeTablePanel timetable = null;
+	
 	AlphaPanel updown = new AlphaPanel();
 	AlphaPanel leftplus = new AlphaPanel();
 	
@@ -84,6 +86,9 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 					cal.set(Calendar.YEAR, cal.get(Calendar.YEAR)-1);
 				}
 				else cal.set(Calendar.MONTH, cal.get(Calendar.MONTH)-1);
+				cal.set(Calendar.DATE, 1);
+				year = cal.get(Calendar.YEAR);
+				month = cal.get(Calendar.MONTH);
 				update(cal.get(Calendar.DAY_OF_WEEK));
 			}
 		});
@@ -95,6 +100,9 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 					cal.set(Calendar.YEAR, cal.get(Calendar.YEAR)+1);
 				}
 				else cal.set(Calendar.MONTH, cal.get(Calendar.MONTH)+1);
+				cal.set(Calendar.DATE, 1);
+				year = cal.get(Calendar.YEAR);
+				month = cal.get(Calendar.MONTH);
 				update(cal.get(Calendar.DAY_OF_WEEK));
 			}
 		});
@@ -107,6 +115,8 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 				updown.setVisible(true);
 				header.add(updown, BorderLayout.EAST);
 				headlabel.setText(cal.get(Calendar.YEAR) + "년 " + (cal.get(Calendar.MONTH) + 1) + "월");
+				cal.set(Calendar.DATE, 1);
+				update(cal.get(Calendar.DAY_OF_WEEK));
 			}
 		});
 		markplus.addActionListener(new ActionListener() {
@@ -129,7 +139,6 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 		header.add(updown, BorderLayout.EAST);
 		header.setBackground(new Color(255,255,255,0));
 		FontMetrics fm = headlabel.getFontMetrics(headlabel.getFont());
-		header.setBounds(30, 10, ((int)( fm.stringWidth(headlabel.getText())*2.5)), fm.getHeight());
 		arrup.setSize(fm.getHeight(), fm.getHeight());
 		arrup.setBackground(new Color(255,255,255,0));
 		arrup.setFont(new Font("맑은 고딕", Font.PLAIN, 20));
@@ -227,7 +236,7 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 		}
 		int fir = cc.gridx;
 		try {
-			JsonElement monthobj = data.get(Integer.toString(year)).getAsJsonObject().get(Integer.toString(month));
+			JsonElement monthobj = data.get(Integer.toString(year)).getAsJsonObject().get(Integer.toString(month+1));
 			for(int i=1; i < cal.getActualMaximum(Calendar.DATE) + 1; i++) {
 				if(!monthobj.isJsonNull()) {
 					JsonArray dayarr = monthobj.getAsJsonObject().get(Integer.toString(i)).getAsJsonArray();
@@ -250,7 +259,7 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 							@Override
 							public void mousePressed(MouseEvent e) {
 								if(SwingUtilities.isLeftMouseButton(e))
-									updateSchedule(day-1);
+									updateSchedule(day);
 							}
 							@Override
 							public void mouseExited(MouseEvent e) {}
@@ -263,7 +272,7 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 				}
 			}
 		}
-		catch (NullPointerException e) {}
+		catch (NullPointerException e) {e.printStackTrace();}
 		cc.gridx %= 7;
 		for(; cc.gridx < 7; cc.gridx++) {
 			JLabel jl = new JLabel(" ", SwingConstants.CENTER);
@@ -283,7 +292,7 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 		leftplus.setVisible(true);
 		schedule.removeAll();
 		header.add(leftplus, BorderLayout.EAST);
-		headlabel.setText(cal.get(Calendar.YEAR) + "년 " + (cal.get(Calendar.MONTH) + 1) + "월" + " " + (day+1) +"일");
+		headlabel.setText(cal.get(Calendar.YEAR) + "년 " + (cal.get(Calendar.MONTH) + 1) + "월" + " " + day +"일");
 		schedule.setBounds(header.getBounds().x - 15, header.getBounds().height + header.getBounds().y, 
 				getWidth() - 20, getHeight() - header.getBounds().y - header.getBounds().height);
 		schedule.setBackground(new Color(255,255,255,0));
@@ -318,7 +327,7 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 						//monthobj.getAsJsonObject().remove(Integer.toString(day));
 						//monthobj.getAsJsonObject().add(Integer.toString(day), newarr);
 					}
-					JsonElement monthobj = data.get(Integer.toString(year)).getAsJsonObject().get(Integer.toString(month));
+					JsonElement monthobj = data.get(Integer.toString(year)).getAsJsonObject().get(Integer.toString(month+1));
 					JsonArray dayarr = monthobj.getAsJsonObject().get(Integer.toString(day)).getAsJsonArray();
 					dayarr.remove(index);
 					writeJson(data, "./caldata.json");
@@ -419,7 +428,7 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 		mschedules[day].schedule[mschedules[day].length].add(timestart);
 		mschedules[day].schedule[mschedules[day].length].add(timeend);
 		
-		JsonElement monthobj = data.get(Integer.toString(year)).getAsJsonObject().get(Integer.toString(month));
+		JsonElement monthobj = data.get(Integer.toString(year)).getAsJsonObject().get(Integer.toString(month+1));
 		JsonArray dayarr = monthobj.getAsJsonObject().get(Integer.toString(day)).getAsJsonArray();
 		JsonObject jsoncontainer = new JsonObject();
 		jsoncontainer.addProperty("name", name);
@@ -431,9 +440,15 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 		mschedules[day].length += 1;
 	}
 	
+	public void attachTimeTable(TimeTablePanel tt) {
+		timetable = tt;
+	}
+	
 	@Override
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, width, height);
+		FontMetrics fm = headlabel.getFontMetrics(headlabel.getFont());
+		header.setBounds(20, 10, getWidth() - 40, fm.getHeight());
 		update(cal.get(Calendar.DAY_OF_WEEK));
 	}
 	@Override
