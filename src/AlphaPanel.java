@@ -32,7 +32,7 @@ public class AlphaPanel extends JPanel {
 		g2d.setPaint(parent.getBackground());
 		g2d.setComposite(AlphaComposite.SrcOver);
 		g2d.fillRect(0, 0, getWidth(), getHeight());
-		
+		parent.repaint();
 	}
 
 }

@@ -12,7 +12,6 @@ public class Schedules {
 			length = i;
 			schedule[i] = new ArrayList<String>();
 			schedule[i].add(input.get(i).getAsJsonObject().get("name").getAsString());
-			schedule[i].add(input.get(i).getAsJsonObject().get("description").getAsString());
 			schedule[i].add(input.get(i).getAsJsonObject().get("place").getAsString());
 			schedule[i].add(input.get(i).getAsJsonObject().get("timestart").getAsString());
 			schedule[i].add(input.get(i).getAsJsonObject().get("timeend").getAsString());
@@ -31,7 +30,6 @@ public class Schedules {
 		if(length == 10)return false;
 		try {
 			schedule[length].add(name);
-			schedule[length].add(description);
 			schedule[length].add(place);
 			schedule[length].add(timestart);
 			schedule[length].add(timeend);
