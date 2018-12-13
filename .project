@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>tabledata.json</name>
+			<type>1</type>
+			<location>C:/Users/wldnj/Git/CustomCalendar/tabledata.json</location>
+		</link>
+	</linkedResources>
 </projectDescription>

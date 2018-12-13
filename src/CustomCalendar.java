@@ -33,6 +33,7 @@ public class CustomCalendar extends JFrame implements ActionListener{
 	
 	ClockPanel clock;
 	CalendarPanel calendar;
+	TimeTablePanel timetable;
 	
 	private static final long serialVersionUID = 411381519542802112L;
 	public CustomCalendar() {
@@ -49,6 +50,7 @@ public class CustomCalendar extends JFrame implements ActionListener{
 		updateAlpha(wrapper);
 		setClockPanel(wrapper);
 		setCalendarPanel(wrapper);
+		setTimeTablePanel(wrapper);
 		add(wrapper);
 		setRightClickMenu(wrapper);
 		setOnClock();
@@ -58,12 +60,21 @@ public class CustomCalendar extends JFrame implements ActionListener{
 		clock.start();
 		clock.setVisible(true);
 		calendar.setVisible(false);
+		timetable.setVisible(false);
 	}
 	
 	private void setOnCalendar() {
 		clock.inturrupt();
 		clock.setVisible(false);
 		calendar.setVisible(true);
+		timetable.setVisible(false);
+	}
+	
+	private void setOnTimeTable() {
+		clock.inturrupt();
+		clock.setVisible(false);
+		calendar.setVisible(false);
+		timetable.setVisible(true);
 	}
 	
 	private void setClockPanel(JPanel dest) {
@@ -78,6 +89,13 @@ public class CustomCalendar extends JFrame implements ActionListener{
 		calendar.setBackground(new Color(255, 255, 255, 0));
 		calendar.setBounds((int) (frameSize.height*sideTabWidthMultiplier), 0, (int) (getWidth() - frameSize.height*sideTabWidthMultiplier), getHeight());
 		dest.add(calendar);
+	}
+	
+	private void setTimeTablePanel(JPanel dest) {
+		timetable = new TimeTablePanel();
+		timetable.setBackground(new Color(255, 255, 255, 0));
+		timetable.setBounds((int) (frameSize.height*sideTabWidthMultiplier), 0, (int) (getWidth() - frameSize.height*sideTabWidthMultiplier), getHeight());
+		dest.add(timetable);
 	}
 	
 	private void setRightClickMenu(JPanel dest) {
@@ -127,6 +145,13 @@ public class CustomCalendar extends JFrame implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setOnCalendar();
+			}
+		});
+		sideButton[2].addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setOnTimeTable();
 			}
 		});
 		dest.add(sideTab);

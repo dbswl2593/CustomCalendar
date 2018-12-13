@@ -158,19 +158,6 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 		
 		calendar = new AlphaPanel(new GridBagLayout());
 		cc = new GridBagConstraints();
-		cc.weightx = 1.0;
-		cc.weighty = 1.0;
-		cc.gridy = 0;
-		cc.fill = GridBagConstraints.BOTH;
-		calendar.setBackground(new Color(255,255,255,0));
-		for(int i=1; i<8; i++) {
-			weekhead.add(new JLabel(dayofweek[i], SwingConstants.CENTER));
-			weekhead.get(i-1).setBackground(new Color(255,255,255,0));
-			weekhead.get(i-1).setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 35));
-			weekhead.get(i-1).setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(100,100,100)));
-			cc.gridx = i-1;
-			calendar.add(weekhead.get(i-1), cc);
-		}
 		schedule = new AlphaPanel();
 		schedule.setLayout(null);
 	}
@@ -226,6 +213,20 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 
 		add(header);
 		calendar.removeAll();
+
+		cc.weightx = 1.0;
+		cc.weighty = 1.0;
+		cc.gridy = 0;
+		cc.fill = GridBagConstraints.BOTH;
+		calendar.setBackground(new Color(255,255,255,0));
+		for(int i=1; i<8; i++) {
+			weekhead.add(new JLabel(dayofweek[i], SwingConstants.CENTER));
+			weekhead.get(i-1).setBackground(new Color(255,255,255,0));
+			weekhead.get(i-1).setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 35));
+			weekhead.get(i-1).setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(100,100,100)));
+			cc.gridx = i-1;
+			calendar.add(weekhead.get(i-1), cc);
+		}
 		cc.gridy = 1;
 		for(int i = 1; i < start; i++) {
 			cc.gridx = i-1;
