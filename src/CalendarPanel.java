@@ -163,7 +163,6 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 	}
 	
 	void writeJson(JsonElement json, String path) {
-		System.out.println("Writing Data...");
 		Gson gson = new Gson();
 		FileOutputStream opstream;
 		try {
@@ -243,7 +242,10 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 					JsonArray dayarr = monthobj.getAsJsonObject().get(Integer.toString(i)).getAsJsonArray();
 					if(!dayarr.isJsonNull()) {
 						mschedules[i] = new Schedules(dayarr);
-						JLabel jl = new JLabel("<html><strong>"+Integer.toString(i) + "</strong><br/><br/>[" + mschedules[i].length + "]</html>", SwingConstants.CENTER);
+						
+						JLabel jl;
+						if(timetable != null)jl = new JLabel("<html><strong>"+Integer.toString(i) + "</strong><br/><br/>[" + (mschedules[i].length + timetable.timetable[(start+i-2)%7].length) + "]</html>", SwingConstants.CENTER);
+						else jl = new JLabel("<html><strong>"+Integer.toString(i) + "</strong><br/><br/>[" + mschedules[i].length + "]</html>", SwingConstants.CENTER);
 						jl.setBackground(new Color(255,255,255,0));
 						jl.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 30));
 						cc.gridx = (fir + i) % 7;
@@ -252,7 +254,6 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 						jl.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(100,100,100)));
 						calendar.add(jl, cc);
 						if(cc.gridx == 6)cc.gridy++;
-						//TODO: add label click listener;
 						final int day = i;
 						jl.addMouseListener(new MouseListener() {
 							@Override
@@ -300,7 +301,8 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 		
 		GridBagConstraints sc = new GridBagConstraints();
 		AlphaPanel[] scpanel = new AlphaPanel[10];
-		for(int i=0; i<mschedules[day].length; i++) {
+		int i;
+		for(i=0; i<mschedules[day].length; i++) {
 			scpanel[i] = new AlphaPanel();
 			header.setBackground(new Color(255,255,255,0));
 			JLabel name = new JLabel(mschedules[day].schedule[i].get(0));
@@ -321,12 +323,6 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 				public void actionPerformed(ActionEvent e) {
 					for(int j = index + 1; j < mschedules[day].length; j++) {
 						mschedules[day].schedule[j-1] = mschedules[day].schedule[j];
-						//JsonArray newarr = new JsonArray();
-						//for(int k = 0; k < mschedules[day].length; k++) {
-						//	if(k!=index)newarr.add(dayarr.get(k));
-						//}
-						//monthobj.getAsJsonObject().remove(Integer.toString(day));
-						//monthobj.getAsJsonObject().add(Integer.toString(day), newarr);
 					}
 					JsonElement monthobj = data.get(Integer.toString(year)).getAsJsonObject().get(Integer.toString(month+1));
 					JsonArray dayarr = monthobj.getAsJsonObject().get(Integer.toString(day)).getAsJsonArray();
@@ -377,6 +373,61 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 				public void mouseClicked(MouseEvent e) {}
 			});
 			schedule.add(scpanel[i]);
+		}
+		if(timetable != null) {
+			for(int j=0; j < timetable.timetable[cal.get(Calendar.DAY_OF_WEEK)-1].length; j++) {
+				scpanel[j] = new AlphaPanel();
+				header.setBackground(new Color(255,255,255,0));
+				JLabel name = new JLabel(timetable.timetable[cal.get(Calendar.DAY_OF_WEEK)-1].schedule[j].get(0));
+				JLabel place = new JLabel(timetable.timetable[cal.get(Calendar.DAY_OF_WEEK)-1].schedule[j].get(1));
+				JLabel time = new JLabel(timetable.timetable[cal.get(Calendar.DAY_OF_WEEK)-1].schedule[j].get(2) + "±³½Ã");
+				name.setBackground(new Color(255,255,255,0));
+				place.setBackground(new Color(255,255,255,0));
+				time.setBackground(new Color(255,255,255,0));
+				name.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 30));
+				place.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 30));
+				time.setFont(new Font("¸¼Àº °íµñ", Font.PLAIN, 30));
+				scpanel[j].setBounds(header.getBounds().x - 15, header.getBounds().height + header.getBounds().y + panelheight*(j+i+1), header.getWidth() + 15, panelheight);
+				scpanel[j].setLayout(new GridBagLayout());
+				sc.weightx = 1.0;
+				sc.weighty = 1.0;
+				sc.gridx = 0;
+				sc.gridy = 0;
+				sc.gridheight = 1;
+				sc.gridwidth = 2;
+				scpanel[j].add(name, sc);
+				sc.gridx = 2;
+				scpanel[j].add(place, sc);
+				sc.gridx = 0;
+				sc.gridy = 1;
+				sc.gridwidth = 4;
+				scpanel[j].add(time, sc);
+				sc.gridx = 4;
+				sc.gridy = 0;
+				sc.gridheight = 2;
+				sc.gridwidth = 1;
+				scpanel[j].setBorder(BorderFactory.createLineBorder(new Color(100,100,100)));
+				scpanel[j].setBackground(new Color(255,255,255,0));
+				scpanel[j].addMouseListener(new MouseListener() {
+					@Override
+					public void mouseReleased(MouseEvent e) {}
+					@Override
+					public void mousePressed(MouseEvent e) {
+						try {
+							Desktop.getDesktop().browse(new URI("https://map.naver.com/index.nhn?query="+URLEncoder.encode(place.getText(), "UTF-8")));
+						} catch (IOException | URISyntaxException e1) {
+							e1.printStackTrace();
+						}
+					}
+					@Override
+					public void mouseExited(MouseEvent e) {}
+					@Override
+					public void mouseEntered(MouseEvent e) {}
+					@Override
+					public void mouseClicked(MouseEvent e) {}
+				});
+				schedule.add(scpanel[j]);
+			}
 		}
 		calendar.setVisible(false);
 		schedule.setVisible(true);
@@ -443,6 +494,17 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 	
 	public void attachTimeTable(TimeTablePanel tt) {
 		timetable = tt;
+		Calendar temp = Calendar.getInstance();
+		temp.setTime(cal.getTime());
+		temp.set(Calendar.DATE, 1);
+		update(temp.get(Calendar.DAY_OF_WEEK));
+	}
+	
+	public void callUpdate() {
+		Calendar temp = Calendar.getInstance();
+		temp.setTime(cal.getTime());
+		temp.set(Calendar.DATE, 1);
+		update(temp.get(Calendar.DAY_OF_WEEK));
 	}
 	
 	@Override

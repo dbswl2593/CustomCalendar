@@ -6,6 +6,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,14 +15,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Calendar;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
@@ -52,6 +54,8 @@ public class TimeTablePanel extends AlphaPanel {
 	private final String path = "./tabledata.json";
 	
 	private GridBagConstraints cc = new GridBagConstraints();
+	
+	private JMenuItem delete;
 	
 	private Color white = new Color(255,255,255,0);
 	
@@ -117,6 +121,34 @@ public class TimeTablePanel extends AlphaPanel {
 				subject.setText("<html>"+timetable[i].schedule[j].get(0) + "<br>" + timetable[i].schedule[j].get(1) + "</html>");
 				subject.setFont(new Font("∏º¿∫ ∞ÌµÒ", Font.PLAIN, 15));
 				subject.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(100,100,100)));
+				JPopupMenu rightClickMenu = new JPopupMenu();
+				delete = new JMenuItem(" ªË¡¶");
+				delete.setFont(new Font("∏º¿∫ ∞ÌµÒ", Font.BOLD, 18));
+				final int index = j, temp = i;
+				delete.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// TODO Auto-generated method stub
+
+						for(int k = index + 1; k < timetable[temp].length; k++) {
+							timetable[temp].schedule[index-1] = timetable[temp].schedule[index];
+						}
+						data.get(dayofweek[temp]).getAsJsonArray().remove(index);
+						timetable[temp].length--;
+						writeJson(data, path);
+						update();
+					}
+				});
+				rightClickMenu.add(delete);
+				subject.add(rightClickMenu);
+				subject.addMouseListener(new MouseAdapter() {
+					public void mousePressed(MouseEvent e) {
+					    if(e.getModifiers() == MouseEvent.BUTTON3_MASK) {
+					    	rightClickMenu.show(subject, e.getX(), e.getY());
+					    }
+					}
+				});
 				table.add(subject, cc);
 			}
 		}
@@ -129,7 +161,6 @@ public class TimeTablePanel extends AlphaPanel {
 			cc.gridy = i;
 			table.add(leftbar, cc);
 		}
-		
 		add(table);
 	}
 	
@@ -191,10 +222,6 @@ public class TimeTablePanel extends AlphaPanel {
 	}
 	
 	private void writeTable(String day, String name, String place, String time) {
-		System.out.println(day);
-		System.out.println(name);
-		System.out.println(place);
-		System.out.println(time);
 		JsonObject newsub = new JsonObject();
 		newsub.addProperty("name", name);
 		newsub.addProperty("place", place);
@@ -204,7 +231,6 @@ public class TimeTablePanel extends AlphaPanel {
 		update();
 	}
 	private void writeJson(JsonElement json, String path) {
-		System.out.println("Writing Data...");
 		Gson gson = new Gson();
 		FileOutputStream opstream;
 		try {

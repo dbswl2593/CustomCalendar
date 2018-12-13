@@ -51,6 +51,7 @@ public class CustomCalendar extends JFrame implements ActionListener{
 		setClockPanel(wrapper);
 		setCalendarPanel(wrapper);
 		setTimeTablePanel(wrapper);
+		calendar.attachTimeTable(timetable);
 		add(wrapper);
 		setRightClickMenu(wrapper);
 		setOnClock();
@@ -68,6 +69,7 @@ public class CustomCalendar extends JFrame implements ActionListener{
 		clock.setVisible(false);
 		calendar.setVisible(true);
 		timetable.setVisible(false);
+		calendar.callUpdate();
 	}
 	
 	private void setOnTimeTable() {
