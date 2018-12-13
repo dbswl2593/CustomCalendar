@@ -1,21 +1,26 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
-import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
 
 public class CustomCalendar extends JFrame implements ActionListener{
 	/**
@@ -119,10 +124,10 @@ public class CustomCalendar extends JFrame implements ActionListener{
 	private void setSideMedu(JPanel dest) {
 		JPanel sideTab = new JPanel(new GridBagLayout());
 		sideTab.setBackground(new Color(255,255,255,0));
-		JButton[] sideButton = new JButton[4];
-		GridBagConstraints[] sideConstraints = new GridBagConstraints[4];
-		sideTab.setBounds(0, (int)(frameSize.height /2 - frameSize.height*sideTabWidthMultiplier*2), (int)(frameSize.height*sideTabWidthMultiplier), (int)(frameSize.height*sideTabWidthMultiplier)*4);
-		for(int i=0; i<4; i++) {
+		JButton[] sideButton = new JButton[3];
+		GridBagConstraints[] sideConstraints = new GridBagConstraints[3];
+		sideTab.setBounds(0, (int)(frameSize.height /2 - frameSize.height*sideTabWidthMultiplier*2), (int)(frameSize.height*sideTabWidthMultiplier), (int)(frameSize.height*sideTabWidthMultiplier)*3);
+		for(int i=0; i<3; i++) {
 			sideButton[i] = new JButton(Integer.toString(i));
 			sideConstraints[i] = new GridBagConstraints();
 			sideConstraints[i].gridx = 0;
@@ -134,29 +139,43 @@ public class CustomCalendar extends JFrame implements ActionListener{
 			sideButton[i].setOpaque(false);
 			sideButton[i].setContentAreaFilled(false);
 			sideButton[i].setBorderPainted(true);
-			sideButton[i].setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+			sideButton[i].setHorizontalAlignment(SwingConstants.CENTER);
 		}
 		sideButton[0].addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setOnClock();
+				if(!clock.isVisible())setOnClock();
 			}
 		});
+		sideButton[0].setIcon(new ImageIcon(getScaledImage((new ImageIcon("./clock.png")).getImage(), (int)(frameSize.height*sideTabWidthMultiplier), (int)(frameSize.height*sideTabWidthMultiplier))));
 		sideButton[1].addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setOnCalendar();
+				if(!calendar.isVisible())setOnCalendar();
 			}
 		});
+		sideButton[1].setIcon(new ImageIcon(getScaledImage((new ImageIcon("./planner.png")).getImage(), (int)(frameSize.height*sideTabWidthMultiplier), (int)(frameSize.height*sideTabWidthMultiplier))));
 		sideButton[2].addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setOnTimeTable();
+				if(!timetable.isVisible())setOnTimeTable();
 			}
 		});
+		sideButton[2].setIcon(new ImageIcon(getScaledImage((new ImageIcon("./timetable.png")).getImage(), (int)(frameSize.height*sideTabWidthMultiplier), (int)(frameSize.height*sideTabWidthMultiplier))));
 		dest.add(sideTab);
+	}
+	
+	private Image getScaledImage(Image srcImg, int w, int h){
+	    BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g2 = resizedImg.createGraphics();
+
+	    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	    g2.drawImage(srcImg, 0, 0, w, h, null);
+	    g2.dispose();
+
+	    return resizedImg;
 	}
 	
 	private void setProperties() {

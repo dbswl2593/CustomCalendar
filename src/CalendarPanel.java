@@ -274,7 +274,22 @@ public class CalendarPanel extends AlphaPanel implements ActionListener {
 				}
 			}
 		}
-		catch (NullPointerException e) {e.printStackTrace();}
+		catch (NullPointerException e) {
+			JsonObject yearobj = new JsonObject();
+			for(int i=0; i<12; i++) {
+				JsonObject month = new JsonObject();
+				Calendar temp = Calendar.getInstance();
+				temp.set(year, i, 1);
+				for(int j=0; j<temp.getActualMaximum(Calendar.DATE); j++){
+					JsonArray day = new JsonArray(10);
+					month.add(Integer.toString(j + 1), day);
+				}
+				yearobj.add(Integer.toString(i + 1), month);
+			}
+			data.add(Integer.toString(year), yearobj);
+			writeJson(data, "./caldata.json");
+			update(cal.get(Calendar.DAY_OF_WEEK));
+		}
 		cc.gridx %= 7;
 		for(; cc.gridx < 7; cc.gridx++) {
 			JLabel jl = new JLabel(" ", SwingConstants.CENTER);
